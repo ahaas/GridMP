@@ -22,8 +22,10 @@ sock.onopen = function() {
 sock.onmessage = function(e) {
     //console.log('SockJS: message', e.data);
     endTimer()
-    sock.send(e.data)
-    startTimer()
+    setTimeout(function() {
+        sock.send(e.data)
+        startTimer()
+    }, 1000)
 };
 sock.onclose = function() {
     console.log('SockJS: close');

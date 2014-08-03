@@ -1,6 +1,8 @@
 var express = require('express');
 var http = require('http');
 var sockjs = require('sockjs');
+var app = express();
+var port = process.envPORT || 3000
 
 // begin sockjs stuff
 var sockjsAdd = sockjs.createServer();
@@ -15,7 +17,6 @@ sockjsAdd.on('connection', function(conn) {
     conn.on('close', function() {});
 });
 
-var app = express();
 app.set('view engine', 'jade');
 
 // static server
@@ -26,7 +27,7 @@ app.get('/', function(req, res){
     res.render('index');
 });
 
-var server = http.createServer(app).listen(3000, function(){
-    console.log('Listening on 3000.')
+var server = http.createServer(app).listen(port, function(){
+    console.log('Listening on %d.', port)
 });
 sockjsAdd.installHandlers(server, {prefix:'/add'});
