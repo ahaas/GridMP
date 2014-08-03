@@ -5,13 +5,12 @@ var ctx = c.getContext("2d");
 ctx.fillStyle = "#FF0000";
 ctx.fillRect(0,0,600,400);
 
-var date = new Date();
-var time = date.getTime();
+var startTime = Date.now();
 function startTimer() {
-    time = date.getTime();
+    startTime = Date.now();
 }
 function endTimer() {
-    console.log('SockJS: ping=%dms', date.getTime() - time)
+    console.log('SockJS: ping=%dms', Date.now() - startTime)
 }
 
 var host = location.origin;
@@ -25,12 +24,11 @@ sock.onopen = function() {
     sock.send('5');
 }
 sock.onmessage = function(e) {
-    //console.log('SockJS: message', e.data);
     endTimer()
     setTimeout(function() {
         sock.send(e.data)
         startTimer()
-    }, 1000)
+    }, 3000)
 };
 sock.onclose = function() {
     console.log('SockJS: close');
