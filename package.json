@@ -7,5 +7,8 @@
         "express": "4.x",
         "jade": "1.x",
         "sockjs": "*"
+    },
+    "scripts": {
+        "start": "node app.js"
     }
 }
