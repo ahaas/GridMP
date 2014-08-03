@@ -6,7 +6,8 @@
     "dependencies": {
         "express": "4.x",
         "jade": "1.x",
-        "sockjs": "*"
+        "sockjs": "*",
+        "underscore": "1.x"
     },
     "scripts": {
         "start": "node app.js"

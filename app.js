@@ -1,20 +1,27 @@
+_ = require('underscore');
+
 var express = require('express');
 var http = require('http');
 var sockjs = require('sockjs');
 var app = express();
-var port = process.env.PORT || 3000
+var port = process.env.PORT || 3000;
+game = require('./game.js');
+
 
 // begin sockjs stuff
 var sockjsAdd = sockjs.createServer();
 sockjsAdd.on('connection', function(conn) {
-    console.log('New SockJS connection, id=' + conn.id);
+
+    game.sockNew(conn);
+
     conn.on('data', function(message) {
-        console.log('SockJS received message: ' + message);
-        output = (parseInt(message) + 1).toString();
-        console.log('SockJS sending in response: ' + output);
-        conn.write(output);
+        game.sockNewData(conn, message);
     });
-    conn.on('close', function() {});
+
+    conn.on('close', function() {
+        game.sockClosed(conn);
+    });
+
 });
 
 app.set('view engine', 'jade');

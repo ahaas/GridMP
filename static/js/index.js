@@ -1,21 +1,25 @@
 console.log('Begin index.js');
 
+
 var c = $('#gameCanvas')[0];
 var ctx = c.getContext("2d");
 ctx.fillStyle = "#FF0000";
 ctx.fillRect(0,0,600,400);
 
+
+// Timer, for ping testing purposes
 var startTime = Date.now();
 function startTimer() {
     startTime = Date.now();
 }
-function endTimer() {
-    console.log('SockJS: ping=%dms', Date.now() - startTime)
+function getTimer() {
+    return Date.now() - startTime
 }
 
-var host = location.origin;
-host = host.match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i)[0];
-host += '/add';
+
+host = location.origin
+       .match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i)[0]
+       + '/add';
 console.log('SocketJS: host=' + host);
 
 var sock = new SockJS(host);
@@ -24,7 +28,7 @@ sock.onopen = function() {
     sock.send('5');
 }
 sock.onmessage = function(e) {
-    endTimer()
+    console.log('SockJS: received=' + e.data)
     setTimeout(function() {
         sock.send(e.data)
         startTimer()
