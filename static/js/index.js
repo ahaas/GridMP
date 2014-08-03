@@ -14,7 +14,12 @@ function endTimer() {
     console.log('SockJS: ping=%dms', date.getTime() - time)
 }
 
-var sock = new SockJS('http://localhost:3000/add');
+var host = location.origin;
+host = host.match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i)[0];
+host += '/add';
+console.log('SocketJS: host=' + host);
+
+var sock = new SockJS(host);
 sock.onopen = function() {
     console.log('SockJS: open');
     sock.send('5');
