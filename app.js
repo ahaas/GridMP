@@ -12,14 +12,14 @@ game = require('./game.js');
 var sockjsAdd = sockjs.createServer();
 sockjsAdd.on('connection', function(conn) {
 
-    game.sockNew(conn);
+    game.sockNewConnection(conn);
 
     conn.on('data', function(message) {
         game.sockNewData(conn, message);
     });
 
     conn.on('close', function() {
-        game.sockClosed(conn);
+        game.sockClosedConnection(conn);
     });
 
 });

@@ -18,7 +18,8 @@ var gameState = {
 }
 
 module.exports = {
-    sockNew: function(conn) {
+    sockNewConnection: function(conn) {
+        // On a new connecction
         var ply = new Player(conn);
         ply.pos = new Pos(0, 0);
         conn.player = ply;
@@ -28,7 +29,7 @@ module.exports = {
     sockNewData: function (conn, message) {
         console.log('SOCKJS RECEIVED: ' + message);
     },
-    sockClosed: function (conn) {
+    sockClosedConnection: function (conn) {
         if (conn.player) {
             delete gameState.players[conn.player];
         } else {
