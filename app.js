@@ -1,0 +1,32 @@
+var express = require('express');
+var http = require('http');
+var sockjs = require('sockjs');
+
+// begin sockjs stuff
+var sockjsAdd = sockjs.createServer();
+sockjsAdd.on('connection', function(conn) {
+    console.log('New SockJS connection, id=' + conn.id);
+    conn.on('data', function(message) {
+        console.log('SockJS received message: ' + message);
+        output = (parseInt(message) + 1).toString();
+        console.log('SockJS sending in response: ' + output);
+        conn.write(output);
+    });
+    conn.on('close', function() {});
+});
+
+var app = express();
+app.set('view engine', 'jade');
+
+// static server
+app.use(express.static(__dirname + '/static'));
+
+// index server
+app.get('/', function(req, res){
+    res.render('index');
+});
+
+var server = http.createServer(app).listen(3000, function(){
+    console.log('Listening on 3000.')
+});
+sockjsAdd.installHandlers(server, {prefix:'/add'});
