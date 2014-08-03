@@ -1,5 +1,8 @@
 { 
     "name": "GridMP",
+    "engines": {
+        "node": "0.10.x"
+    }
     "dependencies": {
         "express": "4.x",
         "jade": "1.x",
