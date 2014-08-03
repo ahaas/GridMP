@@ -1,7 +1,7 @@
 settings = {
     HOST: location.origin
           .match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i)[0],
-    COLOR_BG: '#222222',
+    COLOR_BG: '#181818',
     COLOR_TILE: '#333333',
     GRID_WIDTH: 10,
     GRID_HEIGHT: 10,
