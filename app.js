@@ -2,7 +2,7 @@ var express = require('express');
 var http = require('http');
 var sockjs = require('sockjs');
 var app = express();
-var port = process.envPORT || 3000
+var port = process.env.PORT || 3000
 
 // begin sockjs stuff
 var sockjsAdd = sockjs.createServer();
