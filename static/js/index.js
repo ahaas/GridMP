@@ -1,14 +1,27 @@
-settings = {
-    HOST: location.origin
-          .match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i)[0],
-    COLOR_BG: '#181818',
-    COLOR_TILE: '#333333',
-    GRID_WIDTH: 10,
-    GRID_HEIGHT: 10,
-    CANVAS: $('#gameCanvas')[0],
-    CANVAS_WIDTH: $('#gameCanvas')[0].width,
-    CANVAS_HEIGHT: $('#gameCanvas')[0].height,
-}
+settings = {}
+settings.HOST = location.origin
+                .match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i)[0],
+settings.COLOR_BG = '#181818',
+settings.COLOR_TILE = '#333333',
+settings.COLOR_PLAYER = '#003399',
+settings.GRID_WIDTH = 10,
+settings.GRID_HEIGHT = 10,
+settings.TILE_SIZE = 50, // tile size, in pixels
+settings.CANVAS = $('#gameCanvas')[0],
+
+// AUTOMATIC SETTINGS
+settings.CANVAS_WIDTH = settings.CANVAS.width,
+settings.CANVAS_HEIGHT = settings.CANVAS.height,
+settings.GRID_WIDTH = Math.floor(
+        settings.CANVAS_WIDTH/settings.TILE_SIZE)
+settings.GRID_HEIGHT = Math.floor(
+        settings.CANVAS_HEIGHT/settings.TILE_SIZE)
+
+settings.server = {}
+
+gridmp = {}
+gridmp.pressedKeys = [];
+
 
 
 var c = $('#gameCanvas')[0];
@@ -30,34 +43,66 @@ function getTimer() {
 var sock = new SockJS(settings.HOST + '/add');
 sock.onopen = function() {
     console.log('SockJS: open');
-    sock.send('5');
 }
 sock.onmessage = function(e) {
-    //message = $.parseJSON(e.data) TODO: Uncomment
-    //if ('worldState' in e.data) {
-        renderWorldState(e.data.worldState);
-    //} else if ('event' in e.data) {
-    //    renderEvent(e.data.event);
-    //}
+    m = JSON.parse(e.data);
+    console.log('Socket js: received message' + m);
+    switch (m.type) {
+        case 'settings':
+            onReceiveServerSettings();
+            settings.server = m.payload;
+            break;
+        case 'worldState':
+            renderWorldState(m.payload);
+            break;
+        case 'event':
+            renderEvent(m.payload);
+            break;
+    }
 };
 sock.onclose = function() {
     console.log('SockJS: close');
 };
 
 
+var onReceiveServerSettings = function() {
+    setInterval(function() {
+        console.log('sendingkeypresses')
+        sock.send(JSON.stringify({type: 'pressedKeys', 
+                                  payload: gridmp.pressedKeys}));
+    }, settings.server.SERVER_INTERVAL_S);
+}
+
+
+var drawTile = function(ctx, x, y, inset, color) {
+    // x, y are coordinates of the tile within the grid
+    // inset is the amount of pixels around border to not draw
+    inset = inset || 0
+    color = color || '#000000'
+    ctx.fillRect(
+        x*settings.TILE_SIZE + inset,
+        y*settings.TILE_SIZE + inset,
+        settings.TILE_SIZE-inset*2,
+        settings.TILE_SIZE-inset*2)
+}
 
 var renderWorldState = function(worldState) {
-    var canvas = settings.CANVAS;
-    var ctx = canvas.getContext("2d");
+    var ctx = settings.CANVAS.getContext("2d");
     ctx.fillStyle = settings.COLOR_BG;
     ctx.fillRect(0, 0, settings.CANVAS_WIDTH, settings.CANVAS_HEIGHT);
     ctx.fillStyle = settings.COLOR_TILE;
     for (var x=0; x<settings.GRID_WIDTH; x++) {
         for (var y=0; y<settings.GRID_HEIGHT; y++) {
-            ctx.fillRect(x*50+2, y*50+2, 46, 46);
+            drawTile(ctx, x, y, 2, settings.COLOR_TILE);
         }
     }
+    if (worldState && worldState.players) {
+        _.each(worldState.players, function(ply) {
+            drawTile(ply.pos.x, ply.pos.y, settings.COLOR_PLAYER);
+        });
+    }
 }
+renderWorldState();
 
 var renderEvent = function(evt) {
 

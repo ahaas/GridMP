@@ -1,4 +1,8 @@
-SERVER_FRAME_RATE = 1
+settings = {}
+settings.SERVER_FRAME_RATE = 1
+
+// automatic settings
+settings.SERVER_INTERVAL_S = 1000/settings.SERVER_FRAME_RATE
 
 function Pos(x, y) {
     this.x = x;
@@ -25,9 +29,16 @@ module.exports = {
         conn.player = ply;
         gameState.players.push(ply)
         console.log('New player generated');
+        conn.write(JSON.stringify({type: 'settings', payload: settings}))
     },
-    sockNewData: function (conn, message) {
-        console.log('SOCKJS RECEIVED: ' + message);
+    sockNewData: function (conn, m) {
+        console.log('RECVD ' + m);
+        m = JSON.parse(m)
+        switch(m.type) {
+            case 'keyPresses':
+                console.log('KEYPRESSES');
+                break;
+        }
     },
     sockClosedConnection: function (conn) {
         if (conn.player) {
@@ -43,13 +54,10 @@ module.exports = {
 }
 
 setInterval(function() {
-    console.log(gameState);
-    console.log(gameState.players.length);
     _.each(gameState.players, function(ply) {
-        console.log('Player has conn: ' + ply.conn);
         if (ply.conn) {
-            console.log('Sent message');
-            ply.conn.write('This is a socket message to the player.');
+            ply.conn.write('{"type": "info", '
+                + '"payload": "This is a socket message to the player."}');
         }
     });
-}, 1000/SERVER_FRAME_RATE);
+}, settings.SERVER_INTERVAL_S);
