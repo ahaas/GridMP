@@ -68,7 +68,7 @@ sock.onclose = function() {
 var onReceiveServerSettings = function() {
     setInterval(function() {
         console.log('sendingkeypresses')
-        sock.send(JSON.stringify({type: 'pressedKeys', 
+        sock.send(JSON.stringify({type: 'pressedKeys',
                                   payload: gridmp.pressedKeys}));
     }, settings.server.SERVER_INTERVAL_S);
 }

@@ -37,6 +37,7 @@ module.exports = {
         switch(m.type) {
             case 'keyPresses':
                 console.log('KEYPRESSES');
+                console.log(m)
                 break;
         }
     },
