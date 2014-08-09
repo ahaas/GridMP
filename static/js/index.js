@@ -21,6 +21,7 @@ settings.server = {}
 
 gridmp = {}
 gridmp.pressedKeys = [];
+gridmp.initialized = false;
 
 
 
@@ -42,7 +43,7 @@ function getTimer() {
 
 var sock = new SockJS(settings.HOST + '/add');
 sock.onopen = function() {
-    console.log('SockJS: open');
+    console.log('SockJS: open ' + settings.HOST);
 }
 sock.onmessage = function(e) {
     m = JSON.parse(e.data);
@@ -67,10 +68,18 @@ sock.onclose = function() {
 
 var onReceiveServerSettings = function() {
     setInterval(function() {
-        console.log('sendingkeypresses')
-        sock.send(JSON.stringify({type: 'pressedKeys',
-                                  payload: gridmp.pressedKeys}));
+        gridmp.initialized = true;
     }, settings.server.SERVER_INTERVAL_S);
+}
+
+gridmp.sendInput = function() {
+    if (!gridmp.initialized) {
+        return
+    }
+    console.log(JSON.stringify({type: 'pressedKeys',
+        payload: gridmp.pressedKeys}));
+    sock.send(JSON.stringify({type: 'pressedKeys',
+        payload: gridmp.pressedKeys}));
 }
 
 
