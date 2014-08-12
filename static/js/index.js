@@ -53,8 +53,8 @@ sock.onmessage = function(e) {
             onReceiveServerSettings();
             settings.server = m.payload;
             break;
-        case 'worldState':
-            renderWorldState(m.payload);
+        case 'gameState':
+            renderGameState(m.payload);
             break;
         case 'event':
             renderEvent(m.payload);
@@ -95,7 +95,7 @@ var drawTile = function(ctx, x, y, inset, color) {
         settings.TILE_SIZE-inset*2)
 }
 
-var renderWorldState = function(worldState) {
+var renderGameState = function(worldState) {
     var ctx = settings.CANVAS.getContext("2d");
     ctx.fillStyle = settings.COLOR_BG;
     ctx.fillRect(0, 0, settings.CANVAS_WIDTH, settings.CANVAS_HEIGHT);
@@ -111,7 +111,7 @@ var renderWorldState = function(worldState) {
         });
     }
 }
-renderWorldState();
+renderGameState();
 
 var renderEvent = function(evt) {
 
