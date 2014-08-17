@@ -47,7 +47,6 @@ sock.onopen = function() {
 }
 sock.onmessage = function(e) {
     m = JSON.parse(e.data);
-    console.log('Socket js: received message' + m);
     switch (m.type) {
         case 'settings':
             onReceiveServerSettings();
@@ -83,11 +82,10 @@ gridmp.sendInput = function() {
 }
 
 
-var drawTile = function(ctx, x, y, inset, color) {
+var drawTile = function(ctx, x, y, inset) {
     // x, y are coordinates of the tile within the grid
     // inset is the amount of pixels around border to not draw
     inset = inset || 0
-    color = color || '#000000'
     ctx.fillRect(
         x*settings.TILE_SIZE + inset,
         y*settings.TILE_SIZE + inset,
@@ -102,12 +100,14 @@ var renderGameState = function(worldState) {
     ctx.fillStyle = settings.COLOR_TILE;
     for (var x=0; x<settings.GRID_WIDTH; x++) {
         for (var y=0; y<settings.GRID_HEIGHT; y++) {
-            drawTile(ctx, x, y, 2, settings.COLOR_TILE);
+            drawTile(ctx, x, y, 2);
         }
     }
     if (worldState && worldState.players) {
         _.each(worldState.players, function(ply) {
-            drawTile(ply.pos.x, ply.pos.y, settings.COLOR_PLAYER);
+            console.log('drawing player')
+            ctx.fillStyle = settings.COLOR_PLAYER;
+            drawTile(ctx, ply.pos.x, ply.pos.y);
         });
     }
 }

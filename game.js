@@ -1,12 +1,13 @@
 settings = {};
 settings.SERVER_FRAME_RATE = 20;
-settings.MOVE_RATE = .333;
+settings.MOVE_RATE = .08;
 settings.GRID_WIDTH = 10;
 settings.GRID_HEIGHT = 10;
 
 // automatic settings
 settings.SERVER_INTERVAL_S = 1000/settings.SERVER_FRAME_RATE
-settings.MOVE_RATE_PER_TICK = settings.MOVE_RATE * settings.SERVER_INTERVAL_S
+settings.MOVE_RATE_PER_TICK = settings.MOVE_RATE * 
+                              settings.SERVER_INTERVAL_S
 
 function Pos(x, y) {
     this.x = x;
@@ -15,8 +16,8 @@ function Pos(x, y) {
         function clamp(x, min, max) {
             return Math.min(Math.max(x, min), max);
         }
-        this.x = clamp(x, 0, settings.GRID_WIDTH - 1);
-        this.y = clamp(y, 0, settings.GRID_HEIGHT - 1);
+        this.x = clamp(this.x, 0, settings.GRID_WIDTH - 1);
+        this.y = clamp(this.y, 0, settings.GRID_HEIGHT - 1);
     };
 }
 
@@ -32,28 +33,33 @@ function Player(conn) {
         return new Date().getTime() - this.lastMoved > settings.MOVE_RATE;
     };
     this.updateMoved = function () {
-        this.lastMoved = Date().getTime();
+        this.lastMoved = new Date().getTime();
     };
     this.tryMove = function(direction) {
         if (!this.canMove()) {
             return
         }
+        console.log('\nTRYMOVE');
+        console.log(direction)
+        console.log(this.pos)
         switch(direction) {
             case 'up':
-                this.y--;
+                this.pos.y--;
                 break;
             case 'down':
-                this.y++;
+                this.pos.y++;
                 break;
             case 'left':
-                this.x--;
+                this.pos.x--;
                 break;
             case 'right':
-                this.x++;
+                this.pos.x++;
                 break;
         }
+        console.log(this.pos)
         this.pos.putInBounds();
-        this.updateMoved();
+        this.updateMoved()
+            console.log('\nTRYMOVE');;
     }
 }
 
@@ -79,12 +85,15 @@ module.exports = {
         }
     },
     sockClosedConnection: function (conn) {
+        console.log('Sock JS: Connection closed');
         if (conn.player) {
-            delete gameState.players[conn.player];
+            gameState.players = _.without(gameState.players,
+                                          conn.player);
         } else {
-            _.each(gameState.players, function(ply) {
+            _.each(gameState.players, function(ply, idx) {
                 if (ply.conn == conn) {
-                    delete gameState.players[ply];
+                    gameState.players = _.without(gameState.players,
+                                                  conn.player);
                 }
             });
         }
@@ -94,13 +103,13 @@ module.exports = {
 var simulateGameTick = function() {
     _.each(gameState.players, function(ply) {
         if (ply.canMove()) {
-            if ($inArray('up', ply.pressedKeys)) {
+            if (_.contains(ply.pressedKeys, 'up')) {
                 ply.tryMove('up');
-            } else if ($inArray('left', ply.pressedKeys)) {
+            } else if (_.contains(ply.pressedKeys, 'left')) {
                 ply.tryMove('left');
-            } else if ($inArray('right', ply.pressedKeys)) {
+            } else if (_.contains(ply.pressedKeys, 'right')) {
                 ply.tryMove('right');
-            } else if ($inArray('down', ply.pressedKeys)) {
+            } else if (_.contains(ply.pressedKeys, 'down')) {
                 ply.tryMove('down');
             }
         }
@@ -108,19 +117,22 @@ var simulateGameTick = function() {
 }
 
 setInterval(function() {
+    simulateGameTick()
     // Reconstruct stripped gameState
     sharedGameState = {
-        
+        players: []
     }
-    _.each(gameState.players
-    sharedGameState.players.ma
+    _.each(gameState.players, function(ply, idx) {
+        sharedGameState.players[idx] = {
+            pos: ply.pos
+        }
+    })
+    // Send it to the players
     _.each(gameState.players, function(ply) {
         if (ply.conn) {
             ply.conn.write(JSON.stringify({
                 type: 'gameState',
-                payload: {
-                    
-                };
+                payload: sharedGameState
             }));
         }
     });
