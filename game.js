@@ -39,9 +39,6 @@ function Player(conn) {
         if (!this.canMove()) {
             return
         }
-        console.log('\nTRYMOVE');
-        console.log(direction)
-        console.log(this.pos)
         switch(direction) {
             case 'up':
                 this.pos.y--;
@@ -56,10 +53,8 @@ function Player(conn) {
                 this.pos.x++;
                 break;
         }
-        console.log(this.pos)
         this.pos.putInBounds();
         this.updateMoved()
-            console.log('\nTRYMOVE');;
     }
 }
 
