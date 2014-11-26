@@ -1,13 +1,11 @@
 settings = {};
 settings.SERVER_FRAME_RATE = 20;
-settings.MOVE_RATE = .08;
 settings.GRID_WIDTH = 10;
 settings.GRID_HEIGHT = 10;
 
 // automatic settings
-settings.SERVER_INTERVAL_S = 1000/settings.SERVER_FRAME_RATE
-settings.MOVE_RATE_PER_TICK = settings.MOVE_RATE * 
-                              settings.SERVER_INTERVAL_S
+settings.SERVER_INTERVAL_MS = 1000/settings.SERVER_FRAME_RATE
+settings.MOVE_INTERVAL = 0.33 * 1000
 
 function Pos(x, y) {
     this.x = x;
@@ -30,13 +28,17 @@ function Player(conn) {
     this.pressedKeys = [];
     this.lastMoved = 0;
     this.canMove = function () {
-        return new Date().getTime() - this.lastMoved > settings.MOVE_RATE;
+        console.log(settings)
+        console.log(new Date().getTime() - this.lastMoved)
+        return (new Date().getTime() - this.lastMoved) >
+               settings.MOVE_INTERVAL;
     };
     this.updateMoved = function () {
         this.lastMoved = new Date().getTime();
     };
     this.tryMove = function(direction) {
         if (!this.canMove()) {
+            console.log('cannot move');
             return
         }
         switch(direction) {
@@ -54,7 +56,7 @@ function Player(conn) {
                 break;
         }
         this.pos.putInBounds();
-        this.updateMoved()
+        this.updateMoved();
     }
 }
 
@@ -131,4 +133,4 @@ setInterval(function() {
             }));
         }
     });
-}, settings.SERVER_INTERVAL_S);
+}, settings.SERVER_INTERVAL_MS);

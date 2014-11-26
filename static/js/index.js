@@ -105,7 +105,7 @@ var renderGameState = function(worldState) {
     }
     if (worldState && worldState.players) {
         _.each(worldState.players, function(ply) {
-            console.log('drawing player')
+            console.log('drawing player');
             ctx.fillStyle = settings.COLOR_PLAYER;
             drawTile(ctx, ply.pos.x, ply.pos.y);
         });
